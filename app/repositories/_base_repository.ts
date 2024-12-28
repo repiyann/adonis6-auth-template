@@ -63,4 +63,8 @@ export default abstract class BaseRepository<T extends LucidModel> {
 
     return false
   }
+
+  async findBy(column: string, value: string | number) {
+    return this.model.query().where(column, value).first()
+  }
 }

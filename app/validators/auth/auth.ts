@@ -1,6 +1,6 @@
 import vine from '@vinejs/vine'
 
-const password = vine.string().minLength(8).maxLength(16)
+export const password = vine.string().minLength(8).maxLength(16)
 
 export const registerValidator = vine.compile(
   vine.object({

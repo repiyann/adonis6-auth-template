@@ -10,7 +10,7 @@ This AdonisJS 6 Auth Template is a great starting point for implementing authent
 
 - User Registration: Users can create accounts.
 - User Login: Secure login system using JWT for authentication.
-- Password Reset: Ability to reset passwords via email (WIP).
+- Password Reset: Ability to reset passwords via email.
 - Access Token Guard: Token-based authentication for secure API access.
 - Modular & Scalable: Built in a way that is easy to scale and extend for larger applications.
 
@@ -51,7 +51,7 @@ Copy the .env.example file to .env:
 cp .env.example .env
 ```
 
-Configure the environment variables, such as the database connection.
+Then, configure the necessary environment variables, such as the database connection settings and SMTP provider for password resets.
 
 4. Run Database Migrations
 
@@ -87,6 +87,9 @@ You can access the following API endpoints:
 - POST /api/v1/auth/login: Login and receive an access token.
 - GET /api/v1/auth/profile: Get user profile.
 - POST /api/v1/auth/logout: Logout the user.
+- POST /api/v1/auth/password/forgot: Initiates the password reset process.
+- GET /api/v1/auth/password/reset/:token: Verifies the password reset token.
+- POST /api/v1/auth/password/reset: Resets the user’s password.
 
 ## Notes
 

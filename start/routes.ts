@@ -7,9 +7,10 @@
 |
 */
 
-const AuthController = () => import('#controllers/auth.controller')
 import router from '@adonisjs/core/services/router'
 import { middleware } from './kernel.js'
+const AuthController = () => import('#controllers/auth/auth.controller')
+const PasswordResetsController = () => import('#controllers/auth/password_reset.controller')
 
 router.get('/', async ({ response }) => {
   return response.json({
@@ -26,6 +27,10 @@ router
         router.post('/login', [AuthController, 'login'])
         router.post('/logout', [AuthController, 'logout']).use(middleware.auth())
         router.get('/profile', [AuthController, 'profile']).use(middleware.auth())
+
+        router.post('/password/forgot', [PasswordResetsController, 'forgot'])
+        router.get('/password/reset/:token', [PasswordResetsController, 'verify'])
+        router.post('/password/reset', [PasswordResetsController, 'store'])
       })
       .prefix('/auth')
   })
