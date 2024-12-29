@@ -2,8 +2,11 @@ import { DateTime } from 'luxon'
 import { BaseModel, beforeCreate, belongsTo, column } from '@adonisjs/lucid/orm'
 import User from './user.js'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
-import stringHelpers from '@adonisjs/core/helpers/string'
+// import stringHelpers from '@adonisjs/core/helpers/string'
 import { randomUUID } from 'node:crypto'
+
+// type TokenType = 'PASSWORD_RESET' | 'VERIFY_EMAIL'
+// type RelationNameType = 'passwordResetTokens' | 'verifyEmailTokens'
 
 export default class Token extends BaseModel {
   @column({ isPrimary: true })
@@ -35,51 +38,65 @@ export default class Token extends BaseModel {
     token.id = randomUUID()
   }
 
-  public static async generatePasswordResetToken(user: User | null) {
-    if (!user) return null
+  // public static async generateVerifyEmailToken(user: User) {
+  //   const token = stringHelpers.generateRandom(64)
 
-    const lastResetRequest = await Token.query()
-      .where('userId', user.id)
-      .where('type', 'PASSWORD_RESET')
-      .where('createdAt', '>', DateTime.now().minus({ minutes: 15 }).toSQL())
-      .first()
-    if (lastResetRequest) {
-      throw new Error('You can only request a password reset every 15 minutes.')
-    }
+  //   const record = await user.related('tokens').create({
+  //     type: 'VERIFY_EMAIL',
+  //     expiresAt: DateTime.now().plus({ hour: 24 }),
+  //     token,
+  //   })
 
-    const token = stringHelpers.generateRandom(64)
-    const record = await user.related('tokens').create({
-      type: 'PASSWORD_RESET',
-      expiresAt: DateTime.now().plus({ minute: 15 }),
-      token,
-    })
+  //   return record.token
+  // }
 
-    return record.token
-  }
+  // public static async generatePasswordResetToken(user: User | null) {
+  //   if (!user) return null
 
-  public static async expirePasswordResetTokens(user: User) {
-    await user.related('passwordResetTokens').query().update({
-      expiresAt: DateTime.now(),
-    })
-  }
+  //   const lastResetRequest = await Token.query()
+  //     .where('userId', user.id)
+  //     .where('type', 'PASSWORD_RESET')
+  //     .where('createdAt', '>', DateTime.now().minus({ minutes: 15 }).toSQL())
+  //     .first()
+  //   if (lastResetRequest) {
+  //     throw new Error('You can only request a password reset every 15 minutes.')
+  //   }
 
-  public static async getPasswordResetUser(token: string) {
-    const record = await Token.query()
-      .preload('user')
-      .where('token', token)
-      .where('expiresAt', '>', DateTime.now().toSQL())
-      .orderBy('createdAt', 'desc')
-      .first()
+  //   const token = stringHelpers.generateRandom(64)
+  //   const record = await user.related('tokens').create({
+  //     type: 'PASSWORD_RESET',
+  //     expiresAt: DateTime.now().plus({ minute: 15 }),
+  //     token,
+  //   })
 
-    return record?.user
-  }
+  //   return record.token
+  // }
 
-  public static async verify(token: string) {
-    const record = await Token.query()
-      .where('expiresAt', '>', DateTime.now().toSQL())
-      .where('token', token)
-      .first()
+  // public static async expireTokens(user: User, relationName: RelationNameType) {
+  //   await user.related(relationName).query().update({
+  //     expiresAt: DateTime.now(),
+  //   })
+  // }
 
-    return !!record
-  }
+  // public static async getTokenUser(token: string, type: TokenType) {
+  //   const record = await Token.query()
+  //     .preload('user')
+  //     .where('token', token)
+  //     .where('type', type)
+  //     .where('expiresAt', '>', DateTime.now().toSQL())
+  //     .orderBy('createdAt', 'desc')
+  //     .first()
+
+  //   return record?.user
+  // }
+
+  // public static async verify(token: string, type: TokenType) {
+  //   const record = await Token.query()
+  //     .where('expiresAt', '>', DateTime.now().toSQL())
+  //     .where('token', token)
+  //     .where('type', type)
+  //     .first()
+
+  //   return !!record
+  // }
 }

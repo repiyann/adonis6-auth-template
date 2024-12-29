@@ -11,11 +11,58 @@ export default class AuthController {
     try {
       const payload = await request.validateUsing(registerValidator)
 
-      await this.service.register(payload)
+      const token = await this.service.register(payload)
 
       return response.status(201).json({
         status: 'success',
         message: 'User registered successfully',
+        data: token,
+      })
+    } catch (error) {
+      return response.status(error.status || 500).json({
+        status: 'error',
+        error: {
+          message:
+            (error.messages && error.messages[0] && error.messages[0].message) ||
+            error.message ||
+            'Something went wrong',
+        },
+      })
+    }
+  }
+
+  async request({ response, auth }: HttpContext) {
+    try {
+      const user = auth.getUserOrFail()
+      await this.service.requestEmail(user)
+
+      return response.status(200).json({
+        status: 'success',
+        message: 'Request for new email verification sent successfully',
+      })
+    } catch (error) {
+      return response.status(error.status || 500).json({
+        status: 'error',
+        error: {
+          message:
+            (error.messages && error.messages[0] && error.messages[0].message) ||
+            error.message ||
+            'Something went wrong',
+        },
+      })
+    }
+  }
+
+  async verify({ response, params, auth }: HttpContext) {
+    try {
+      const token = params.token
+
+      const user = auth.getUserOrFail()
+      await this.service.verifyEmail(token, user)
+
+      return response.status(200).json({
+        status: 'success',
+        message: 'Email verified successfully',
       })
     } catch (error) {
       return response.status(error.status || 500).json({

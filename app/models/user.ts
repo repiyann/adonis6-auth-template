@@ -9,6 +9,8 @@ import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import Roles from '#enums/roles'
 import { randomUUID } from 'node:crypto'
 import Token from './token.js'
+// import VerifyEmail from '#mails/verify_e_notification'
+// import mail from '@adonisjs/mail/services/main'
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
   uids: ['email'],
@@ -33,6 +35,9 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @column({ serializeAs: null })
   declare password: string
 
+  @column()
+  declare isEmailVerified: boolean
+
   @column.dateTime({ autoCreate: true, serializeAs: null })
   declare createdAt: DateTime
 
@@ -55,10 +60,20 @@ export default class User extends compose(BaseModel, AuthFinder) {
   })
   declare passwordResetTokens: HasMany<typeof Token>
 
+  @hasMany(() => Token, {
+    onQuery: (query) => query.where('type', 'VERIFY_EMAIL'),
+  })
+  declare verifyEmailTokens: HasMany<typeof Token>
+
   static accessTokens = DbAccessTokensProvider.forModel(User)
 
   @beforeCreate()
   static assignUuid(user: User) {
     user.id = randomUUID()
   }
+
+  // public async sendVerifyEmail() {
+  //   const token = await Token.generateVerifyEmailToken(this)
+  //   await mail.sendLater(new VerifyEmail(this, token))
+  // }
 }
