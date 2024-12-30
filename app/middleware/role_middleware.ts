@@ -1,14 +1,16 @@
+import Roles from '#enums/roles'
 import type { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'
 
-export default class VerifyEmailMiddleware {
+export default class RoleMiddleware {
   async handle({ response, auth }: HttpContext, next: NextFn) {
-    const isEmailVerified = auth.user?.isEmailVerified
+    const userRoleId = auth.user?.roleId
+    const adminRole = Roles.ADMIN
 
-    if (!isEmailVerified) {
+    if (userRoleId !== adminRole) {
       return response.status(403).json({
         status: 'error',
-        message: 'Please verify your email address to proceed.',
+        message: 'Only users with an admin role can perform this action.',
       })
     }
 

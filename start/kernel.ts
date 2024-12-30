@@ -44,4 +44,5 @@ router.use([
 export const middleware = router.named({
   auth: () => import('#middleware/auth_middleware'),
   verifyEmail: () => import('#middleware/verify_email_middleware'),
+  role: () => import('#middleware/role_middleware'),
 })

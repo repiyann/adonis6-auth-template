@@ -9,6 +9,7 @@ export default class extends BaseSeeder {
       fullName: 'Super Admin',
       email: 'admin@admin.com',
       password: 'wadaw1234',
+      isEmailVerified: true,
     })
   }
 }

@@ -20,12 +20,7 @@ export default class PasswordResetsController {
     } catch (error) {
       return response.status(error.status || 500).json({
         status: 'error',
-        error: {
-          message:
-            (error.messages && error.messages[0] && error.messages[0].message) ||
-            error.message ||
-            'Something went wrong',
-        },
+        message: error.messages?.[0]?.message || error.message || 'Something went wrong',
       })
     }
   }
@@ -43,12 +38,7 @@ export default class PasswordResetsController {
     } catch (error) {
       return response.status(error.status || 500).json({
         status: 'error',
-        error: {
-          message:
-            (error.messages && error.messages[0] && error.messages[0].message) ||
-            error.message ||
-            'Something went wrong',
-        },
+        message: error.messages?.[0]?.message || error.message || 'Something went wrong',
       })
     }
   }
@@ -66,12 +56,7 @@ export default class PasswordResetsController {
     } catch (error) {
       return response.status(error.status || 500).json({
         status: 'error',
-        error: {
-          message:
-            (error.messages && error.messages[0] && error.messages[0].message) ||
-            error.message ||
-            'Something went wrong',
-        },
+        message: error.messages?.[0]?.message || error.message || 'Something went wrong',
       })
     }
   }

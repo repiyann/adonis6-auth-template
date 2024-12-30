@@ -4,10 +4,10 @@ import { loginValidator, registerValidator } from '#validators/auth/auth'
 import { AccessToken } from '@adonisjs/auth/access_tokens'
 import { Infer } from '@vinejs/vine/types'
 import { inject } from '@adonisjs/core'
-import CustomErrorException from '#exceptions/custom_error_exception'
 import TokenRepository from '#repositories/token.repository'
 import mail from '@adonisjs/mail/services/main'
 import VerifyEmailNotification from '#mails/verify_e_notification'
+import { Exception } from '@adonisjs/core/exceptions'
 
 type RegisterPayload = Infer<typeof registerValidator>
 type LoginPayload = Infer<typeof loginValidator>
@@ -22,15 +22,27 @@ export default class AuthService {
   async register(payload: RegisterPayload) {
     const user = await this.authRepo.create(payload)
     const authToken = await User.accessTokens.create(user)
-
-    const token = await this.tokenRepo.generateVerifyEmailToken(user)
+    const token = await this.tokenRepo.generateToken(user, 'VERIFY_EMAIL')
     await mail.sendLater(new VerifyEmailNotification(user, token))
 
     return authToken
   }
 
   async requestEmail(user: User) {
-    const token = await this.tokenRepo.generateVerifyEmailToken(user)
+    if (user.isEmailVerified) {
+      throw new Exception('Your email is already verified.', {
+        status: 400,
+      })
+    }
+
+    const existingToken = await this.tokenRepo.canRequestToken(user, 'VERIFY_EMAIL')
+    if (existingToken) {
+      throw new Exception('You can only request a verification email every 24 hours.', {
+        status: 429,
+      })
+    }
+
+    const token = await this.tokenRepo.generateToken(user, 'VERIFY_EMAIL')
     await mail.sendLater(new VerifyEmailNotification(user, token))
   }
 
@@ -39,12 +51,9 @@ export default class AuthService {
     const isMatch = user?.id === auth?.id
 
     if (!user || !isMatch) {
-      throw new CustomErrorException(
-        'Invalid token or token does not belong to the authenticated user.',
-        {
-          status: 401,
-        }
-      )
+      throw new Exception('Invalid token or token does not belong to the authenticated user.', {
+        status: 401,
+      })
     }
 
     user.isEmailVerified = true
@@ -61,7 +70,5 @@ export default class AuthService {
 
   async logout(user: User, token: AccessToken) {
     await User.accessTokens.delete(user, token.identifier)
-
-    return true
   }
 }

@@ -3,7 +3,6 @@ import BaseRepository from './_base_repository.js'
 import { DateTime } from 'luxon'
 import stringHelpers from '@adonisjs/core/helpers/string'
 import User from '#models/user'
-import CustomErrorException from '#exceptions/custom_error_exception'
 
 type TokenType = 'PASSWORD_RESET' | 'VERIFY_EMAIL'
 type RelationNameType = 'passwordResetTokens' | 'verifyEmailTokens'
@@ -13,48 +12,32 @@ export default class TokenRepository extends BaseRepository<typeof Token> {
     super(Token)
   }
 
-  async generateVerifyEmailToken(user: User) {
-    const lastResetRequest = await this.model
-      .query()
-      .where('userId', user.id)
-      .where('type', 'VERIFY_EMAIL')
-      .where('createdAt', '>', DateTime.now().minus({ hours: 24 }).toSQL())
-      .first()
-    if (lastResetRequest) {
-      throw new CustomErrorException('You can only request a verification email every 24 hours.', {
-        status: 409,
-      })
+  private getTokenTimeLimit(type: TokenType) {
+    if (type === 'VERIFY_EMAIL') {
+      return { hours: 24 }
+    } else if (type === 'PASSWORD_RESET') {
+      return { minutes: 15 }
     }
 
-    const token = stringHelpers.generateRandom(64)
-    const record = await user.related('tokens').create({
-      type: 'VERIFY_EMAIL',
-      expiresAt: DateTime.now().plus({ hour: 24 }),
-      token,
-    })
-
-    return record.token
+    throw new Error(`Unknown token type: ${type}`)
   }
 
-  async generatePasswordResetToken(user: User | null) {
-    if (!user) return null
-
-    const lastResetRequest = await this.model
+  async canRequestToken(user: User, type: TokenType) {
+    return await this.model
       .query()
       .where('userId', user.id)
-      .where('type', 'PASSWORD_RESET')
-      .where('createdAt', '>', DateTime.now().minus({ minutes: 15 }).toSQL())
+      .where('type', type)
+      .where('createdAt', '>', DateTime.now().minus(this.getTokenTimeLimit(type)).toSQL())
       .first()
-    if (lastResetRequest) {
-      throw new CustomErrorException('You can only request a password reset every 15 minutes.', {
-        status: 409,
-      })
-    }
+  }
 
+  async generateToken(user: User, type: TokenType) {
     const token = stringHelpers.generateRandom(64)
+    const expirationTime = DateTime.now().plus(this.getTokenTimeLimit(type))
+
     const record = await user.related('tokens').create({
-      type: 'PASSWORD_RESET',
-      expiresAt: DateTime.now().plus({ minute: 15 }),
+      type,
+      expiresAt: expirationTime,
       token,
     })
 

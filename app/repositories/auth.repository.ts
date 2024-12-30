@@ -5,4 +5,8 @@ export default class AuthRepository extends BaseRepository<typeof User> {
   constructor() {
     super(User)
   }
+
+  async users() {
+    return this.model.query().orderBy('email')
+  }
 }

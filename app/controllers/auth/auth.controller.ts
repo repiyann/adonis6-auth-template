@@ -21,12 +21,7 @@ export default class AuthController {
     } catch (error) {
       return response.status(error.status || 500).json({
         status: 'error',
-        error: {
-          message:
-            (error.messages && error.messages[0] && error.messages[0].message) ||
-            error.message ||
-            'Something went wrong',
-        },
+        message: error.messages?.[0]?.message || error.message || 'Something went wrong',
       })
     }
   }
@@ -34,6 +29,7 @@ export default class AuthController {
   async request({ response, auth }: HttpContext) {
     try {
       const user = auth.getUserOrFail()
+
       await this.service.requestEmail(user)
 
       return response.status(200).json({
@@ -43,12 +39,7 @@ export default class AuthController {
     } catch (error) {
       return response.status(error.status || 500).json({
         status: 'error',
-        error: {
-          message:
-            (error.messages && error.messages[0] && error.messages[0].message) ||
-            error.message ||
-            'Something went wrong',
-        },
+        message: error.messages?.[0]?.message || error.message || 'Something went wrong',
       })
     }
   }
@@ -56,8 +47,8 @@ export default class AuthController {
   async verify({ response, params, auth }: HttpContext) {
     try {
       const token = params.token
-
       const user = auth.getUserOrFail()
+
       await this.service.verifyEmail(token, user)
 
       return response.status(200).json({
@@ -67,12 +58,7 @@ export default class AuthController {
     } catch (error) {
       return response.status(error.status || 500).json({
         status: 'error',
-        error: {
-          message:
-            (error.messages && error.messages[0] && error.messages[0].message) ||
-            error.message ||
-            'Something went wrong',
-        },
+        message: error.messages?.[0]?.message || error.message || 'Something went wrong',
       })
     }
   }
@@ -91,12 +77,7 @@ export default class AuthController {
     } catch (error) {
       return response.status(error.status || 500).json({
         status: 'error',
-        error: {
-          message:
-            (error.messages && error.messages[0] && error.messages[0].message) ||
-            error.message ||
-            'Something went wrong',
-        },
+        message: error.messages?.[0]?.message || error.message || 'Something went wrong',
       })
     }
   }
@@ -105,7 +86,8 @@ export default class AuthController {
     try {
       const user = auth.getUserOrFail()
 
-      await this.service.logout(user, user.currentAccessToken)
+      const token = user.currentAccessToken
+      await this.service.logout(user, token)
 
       return response.status(200).json({
         status: 'success',
@@ -114,12 +96,7 @@ export default class AuthController {
     } catch (error) {
       return response.status(error.status || 500).json({
         status: 'error',
-        error: {
-          message:
-            (error.messages && error.messages[0] && error.messages[0].message) ||
-            error.message ||
-            'Something went wrong',
-        },
+        message: error.messages?.[0]?.message || error.message || 'Something went wrong',
       })
     }
   }
@@ -136,12 +113,7 @@ export default class AuthController {
     } catch (error) {
       return response.status(error.status || 500).json({
         status: 'error',
-        error: {
-          message:
-            (error.messages && error.messages[0] && error.messages[0].message) ||
-            error.message ||
-            'Something went wrong',
-        },
+        message: error.messages?.[0]?.message || error.message || 'Something went wrong',
       })
     }
   }
