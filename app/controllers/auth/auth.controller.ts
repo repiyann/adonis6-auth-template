@@ -67,12 +67,12 @@ export default class AuthController {
     try {
       const payload = await request.validateUsing(loginValidator)
 
-      const token = await this.service.login(payload)
+      const { token, isAdmin } = await this.service.login(payload)
 
       return response.status(200).json({
         status: 'success',
         message: 'Login successful',
-        data: token,
+        data: { token, isAdmin },
       })
     } catch (error) {
       return response.status(error.status || 500).json({

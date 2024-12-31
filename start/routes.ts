@@ -26,12 +26,8 @@ router
       .group(() => {
         router.post('/register', [AuthController, 'register'])
         router.post('/login', [AuthController, 'login'])
-        router
-          .get('/profile', [AuthController, 'profile'])
-          .use([middleware.auth(), middleware.verifyEmail()])
-        router
-          .post('/logout', [AuthController, 'logout'])
-          .use([middleware.auth(), middleware.verifyEmail()])
+        router.get('/profile', [AuthController, 'profile']).use(middleware.auth())
+        router.post('/logout', [AuthController, 'logout']).use(middleware.auth())
 
         router.get('/verify/email/:token', [AuthController, 'verify']).use(middleware.auth())
         router.post('/verify/email/request', [AuthController, 'request']).use(middleware.auth())

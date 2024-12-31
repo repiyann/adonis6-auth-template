@@ -65,7 +65,7 @@ export default class AuthService {
     const user = await User.verifyCredentials(email, password)
     const token = await User.accessTokens.create(user)
 
-    return token
+    return { token, isAdmin: user.isAdmin }
   }
 
   async logout(user: User, token: AccessToken) {
