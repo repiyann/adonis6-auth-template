@@ -18,7 +18,7 @@ export default class VerifyEmailNotification extends BaseMail {
    * the email is sent or queued.
    */
   prepare() {
-    const verificationLink = `${env.get('DOMAIN')}/auth/verify/email/${this.token}`
+    const verificationLink = `${env.get('BACKEND_DOMAIN')}/verify-email/${this.token}`
 
     this.message.to(this.user.email).html(`
       <html>

@@ -49,11 +49,13 @@ export default class AuthController {
       const token = params.token
       const user = auth.getUserOrFail()
 
+      const isAdmin = user.isAdmin
       await this.service.verifyEmail(token, user)
 
       return response.status(200).json({
         status: 'success',
         message: 'Email verified successfully',
+        data: isAdmin,
       })
     } catch (error) {
       return response.status(error.status || 500).json({
