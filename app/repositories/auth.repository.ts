@@ -6,7 +6,7 @@ export default class AuthRepository extends BaseRepository<typeof User> {
     super(User)
   }
 
-  async users() {
-    return this.model.query().orderBy('email')
+  async users(page: number, perPage: number) {
+    return this.model.query().orderBy('email').paginate(page, perPage)
   }
 }

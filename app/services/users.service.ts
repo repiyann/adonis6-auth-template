@@ -17,11 +17,12 @@ export default class UsersService {
     protected roleRepo: RoleRepository
   ) {}
 
-  async indexUsers() {
-    const users = await this.userRepo.users()
-    const roles = await this.roleRepo.roles()
+  async indexUsers(page: number, perPage: number) {
+    // const users = await this.userRepo.users()
+    // const roles = await this.roleRepo.roles()
 
-    return { users, roles }
+    // return { users, roles }
+    return await this.userRepo.users(page, perPage)
   }
 
   async manageRoles(role: RolePayload, id: string, auth: User, token: AccessToken) {

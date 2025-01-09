@@ -7,17 +7,15 @@ import type { HttpContext } from '@adonisjs/core/http'
 export default class UsersController {
   constructor(protected service: UsersService) {}
 
-  async manage({ response }: HttpContext) {
+  async manage({ request, response }: HttpContext) {
     try {
-      const data = await this.service.indexUsers()
+      const { page, perPage } = request.qs()
+      const data = await this.service.indexUsers(page, perPage)
 
       return response.status(200).json({
         status: 'success',
         message: 'Successfully fetched users and roles.',
-        data: {
-          users: data.users,
-          roles: data.roles,
-        },
+        data: data,
       })
     } catch (error) {
       return response.status(error.status || 500).json({
