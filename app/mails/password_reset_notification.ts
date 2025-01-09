@@ -18,7 +18,7 @@ export default class PasswordResetNotification extends BaseMail {
    * the email is sent or queued.
    */
   prepare() {
-    const resetLink = `${env.get('DOMAIN')}/auth/password/reset/${this.token}`
+    const resetLink = `${env.get('BACKEND_DOMAIN')}/forgot-password/verify/${this.token}`
 
     this.message.to(this.user.email).html(`
       <html>
